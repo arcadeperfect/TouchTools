@@ -7,20 +7,25 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.OnScreen;
 using UnityEngine.UI;
+using VectorTerrain.Scripts;
 
 public class TouchToolsDetector : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
-    public Disc disc;
-    
-    
     private Vector2 _bonkle;
     public Vector2 bonkle => _bonkle;
-    private RectTransform rect;
-
     private Vector2 pressedPos;
+    public Vector2 PressedPos => pressedPos;
+    
+    
+    private RectTransform rect;
     private Canvas topCanvas;
     private RectTransform topTransform;
 
+    public event Action<Vector2> Down;
+    public event Action<Vector2> Up;
+    public event Action<Vector2> Drag;
+    public event Action<Vector2> Delta;
+    
     private float Ratio => topTransform.localScale.x;
     private void Awake()
     {
@@ -32,35 +37,34 @@ public class TouchToolsDetector : MonoBehaviour, IPointerDownHandler, IPointerUp
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        pressedPos = Map(eventData);
-        _bonkle = Map(eventData);
+        var mapped = Map(eventData);
+        pressedPos = mapped;
+        _bonkle = mapped;
+        Down?.Invoke(mapped);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        _bonkle = Map(eventData);
+        var mapped = Map(eventData);
+        _bonkle = mapped;
+        Up?.Invoke(mapped);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         var mapped = Map(eventData);
-        
         _bonkle = mapped;
-        
         var delta = mapped - pressedPos;
-        
-        // Debug.Log(disc.Radius);
-        // Debug.Log(Ratio);
-        // Debug.Log(delta.magnitude/Ratio);
-        // Debug.Log(disc.Radius - delta.magnitude/Ratio);
-        var z = Hutl.Map(delta.magnitude/Ratio, 0, disc.Radius, 0, 1);
-        Debug.Log(z);
+        // var z = Hutl.Map(delta.magnitude/Ratio, 0, disc.Radius, 0, 1);
+
+        Drag?.Invoke(mapped);
+        Delta?.Invoke(delta);
     }
     
     private Vector2 Map(PointerEventData eventData)
     {
         RectTransformUtility.ScreenPointToWorldPointInRectangle(rect, eventData.position, eventData.pressEventCamera, out var position);
-            return position;
+        return position;
     }
 
     private Canvas GetTopCanvas()
