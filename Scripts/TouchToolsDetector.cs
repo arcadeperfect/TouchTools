@@ -23,7 +23,7 @@ public class TouchToolsDetector : MonoBehaviour, IPointerDownHandler, IPointerUp
 
     public event Action<Vector2> Down;
     public event Action<Vector2> Up;
-    public event Action<Vector2> Drag;
+    public event Action<Vector2, Vector2> Drag;
     public event Action<Vector2> Delta;
     
     private float Ratio => topTransform.localScale.x;
@@ -57,8 +57,8 @@ public class TouchToolsDetector : MonoBehaviour, IPointerDownHandler, IPointerUp
         var delta = mapped - pressedPos;
         // var z = Hutl.Map(delta.magnitude/Ratio, 0, disc.Radius, 0, 1);
 
-        Drag?.Invoke(mapped);
-        Delta?.Invoke(delta);
+        Drag?.Invoke(mapped, delta);
+        // Delta?.Invoke(delta);
     }
     
     private Vector2 Map(PointerEventData eventData)

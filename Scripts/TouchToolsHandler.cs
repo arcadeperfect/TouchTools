@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace TouchTools.Scripts
 {
-    public class TouchHandler: MonoBehaviour
+    public class TouchToolsHandler: MonoBehaviour
     {
         
         public Transform bonkle;
@@ -17,6 +17,12 @@ namespace TouchTools.Scripts
     
         private Canvas topCanvas;
         private float Ratio => topTransform.localScale.x;
+        
+        
+        public event Action<Vector2> Drag;
+        public event Action<Vector2> Down;
+        public event Action<Vector2> Up;
+        
         private void Start()
         {
             detector.Drag += OnDrag;
@@ -34,14 +40,17 @@ namespace TouchTools.Scripts
         {
             var n = Normalize(pos);
         }
-        private void OnDrag(Vector2 pos)
+        private void OnDrag(Vector2 pos, Vector2 dragged)
         {
+            Drag?.Invoke(Normalize(dragged));
         }
         private void OnDown(Vector2 pos)
         {
+            Down?.Invoke(Normalize(pos));
         }
         private void OnUp(Vector2 pos)
         {
+            Up?.Invoke(Normalize(pos));
         }
         private Canvas GetTopCanvas()
         {
